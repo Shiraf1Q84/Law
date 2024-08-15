@@ -52,7 +52,7 @@ def run_ui(search_engine: SearchEngine, query_generator):
     original_query = st.text_input("検索ワードを入力してください")
     if st.button("検索"):
         # 検索処理は前のコードと同じ
-         if original_query:
+        if original_query:
             if use_improved_query:
                 with st.spinner("検索クエリを改善中..."):
                     improved_query, explanation = query_generator(original_query, api_key)
