@@ -2,3 +2,4 @@ pymupdf
 scikit-learn
 streamlit
 numpy
+openai
