@@ -6,16 +6,35 @@ import time
 import base64
 from PIL import Image
 import io
+from config import save_api_key, load_api_key, clear_api_key
 
 def run_ui(search_engine: SearchEngine, query_generator):
     st.title("法文横断検索システム")
-    
-    api_key = st.sidebar.text_input("OpenAI APIキーを入力してください", type="password")
-    
+
+    # 保存されたAPIキーを読み込む
+    api_key = load_api_key()
+
+    # サイドバーにAPIキー関連の設定を配置
+    with st.sidebar:
+        st.header("API設定")
+        if not api_key:
+            new_api_key = st.text_input("OpenAI APIキーを入力してください", type="password")
+            if st.button("APIキーを保存"):
+                save_api_key(new_api_key)
+                api_key = new_api_key
+                st.success("APIキーが保存されました。")
+        else:
+            st.success("APIキーが設定されています。")
+            if st.button("APIキーをリセット"):
+                clear_api_key()
+                api_key = ""
+                st.warning("APIキーがリセットされました。新しいキーを入力してください。")
+
     if not api_key:
-        st.warning("OpenAI APIキーを入力してください。")
+        st.warning("OpenAI APIキーを設定してください。")
         return
 
+    # メイン検索インターフェース
     original_query = st.text_input("検索ワードを入力してください")
     if st.button("検索"):
         if original_query:
@@ -88,7 +107,9 @@ def run_ui(search_engine: SearchEngine, query_generator):
                     
                     # 進捗バーの更新
                     progress = (i + 1) / len(all_results)
-                    st.progress(progress)
+                    progress_bar.progress(progress)
+                
+                progress_bar.empty()
             else:
                 st.warning("検索結果が見つかりませんでした。")
         else:
