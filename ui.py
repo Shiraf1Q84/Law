@@ -2,6 +2,7 @@ import streamlit as st
 from search_engine import SearchEngine
 from query_generator import generate_improved_query
 from vector_database import VectorDatabase
+import time
 
 def run_ui(search_engine: SearchEngine, query_generator):
     st.title("法文横断検索システム")
@@ -23,26 +24,68 @@ def run_ui(search_engine: SearchEngine, query_generator):
                 return
 
             st.subheader("検索クエリの改善")
-            st.write(f"元のクエリ: {original_query}")
-            st.write(f"改善されたクエリ: {improved_query}")
-            st.write("改善プロセス:")
-            st.write(explanation)
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                st.info("元のクエリ")
+                st.write(original_query)
+            with col2:
+                st.success("改善されたクエリ")
+                st.write(improved_query)
 
-            use_improved = st.radio("使用するクエリを選択してください:", ("元のクエリ", "改善されたクエリ"))
-            query = improved_query if use_improved == "改善されたクエリ" else original_query
+            with st.expander("改善プロセスの詳細"):
+                st.write(explanation)
+
+            search_results_placeholder = st.empty()
+            progress_bar = st.progress(0)
 
             with st.spinner("検索中..."):
-                results = search_engine.search(query)
+                original_results = search_engine.search(original_query)
+                improved_results = search_engine.search(improved_query)
+                
+                # 結果をマージして重複を除去
+                all_results = []
+                seen_texts = set()
+                for result in original_results + improved_results:
+                    if result['document']['text'] not in seen_texts:
+                        all_results.append(result)
+                        seen_texts.add(result['document']['text'])
+                
+                # スコアでソート
+                all_results.sort(key=lambda x: x['score'], reverse=True)
             
-            if results:
+            if all_results:
                 st.subheader("検索結果")
-                for result in results:
-                    st.markdown(f"**スコア: {result['score']:.2f}**")
-                    st.markdown(f"<span style='color: #A0A0A0;'><strong>ファイル名: {result['document']['file_name']}</strong></span>", unsafe_allow_html=True)
-                    st.markdown(f"<span style='color: #A0A0A0;'><strong>ページ番号: {result['document']['page_number']}</strong></span>", unsafe_allow_html=True)
-                    st.markdown(f"<span style='color: #A0A0A0;'><strong>チャンク番号: {result['document']['chunk_number']}</strong></span>", unsafe_allow_html=True)
-                    st.write(result['document']['text'])
-                    st.markdown("---")
+                for i, result in enumerate(all_results):
+                    with search_results_placeholder.container():
+                        st.markdown(f"**スコア: {result['score']:.2f}**")
+                        st.markdown(f"<span style='color: #A0A0A0;'><strong>ファイル名: {result['document']['file_name']}</strong></span>", unsafe_allow_html=True)
+                        st.markdown(f"<span style='color: #A0A0A0;'><strong>ページ番号: {result['document']['page_number']}</strong></span>", unsafe_allow_html=True)
+                        st.markdown(f"<span style='color: #A0A0A0;'><strong>チャンク番号: {result['document']['chunk_number']}</strong></span>", unsafe_allow_html=True)
+                        
+                        # クエリソースを表示
+                        if result in original_results and result in improved_results:
+                            st.markdown("<span style='color: #FFA500;'><strong>元のクエリと改善されたクエリの両方でヒット</strong></span>", unsafe_allow_html=True)
+                        elif result in original_results:
+                            st.markdown("<span style='color: #1E90FF;'><strong>元のクエリでヒット</strong></span>", unsafe_allow_html=True)
+                        else:
+                            st.markdown("<span style='color: #32CD32;'><strong>改善されたクエリでヒット</strong></span>", unsafe_allow_html=True)
+                        
+                        # テキストをストリーミング表示
+                        text_placeholder = st.empty()
+                        full_text = result['document']['text']
+                        for j in range(len(full_text) + 1):
+                            text_placeholder.markdown(full_text[:j])
+                            time.sleep(0.01)  # 表示速度の調整
+                        
+                        st.markdown("---")
+                    
+                    # 進捗バーの更新
+                    progress = (i + 1) / len(all_results)
+                    progress_bar.progress(progress)
+                    time.sleep(0.5)  # 結果間の遅延
+                
+                progress_bar.empty()
             else:
                 st.warning("検索結果が見つかりませんでした。")
         else:
