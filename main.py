@@ -14,7 +14,7 @@ def main():
     for filename in os.listdir(pdf_directory):
         if filename.endswith(".pdf"):
             file_path = os.path.join(pdf_directory, filename)
-            text_chunks = process_pdf(file_path)
+            text_chunks = process_pdf(file_path, LLAMA_CLOUD_API_KEY)  # api_keyを渡す
             for chunk in text_chunks:
                 db.add_document(chunk)
     
