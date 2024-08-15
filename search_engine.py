@@ -1,7 +1,5 @@
-# search_engine.py
 from typing import List
 import re
-from vector_database import VectorDatabase  # この行を追加
 
 class SearchEngine:
     def __init__(self, db: VectorDatabase):
@@ -38,9 +36,12 @@ class SearchEngine:
                 merged[doc['text']] = {'document': doc, 'keyword_score': 0, 'vector_score': score}
         
         results = list(merged.values())
-        max_keyword = max(r['keyword_score'] for r in results) if results else 1
-        max_vector = max(r['vector_score'] for r in results) if results else 1
+        max_keyword = max((r['keyword_score'] for r in results), default=1)
+        max_vector = max((r['vector_score'] for r in results), default=1)
+        
         for r in results:
-            r['score'] = (r['keyword_score'] / max_keyword + r['vector_score'] / max_vector) / 2
+            keyword_score = r['keyword_score'] / max_keyword if max_keyword != 0 else 0
+            vector_score = r['vector_score'] / max_vector if max_vector != 0 else 0
+            r['score'] = (keyword_score + vector_score) / 2
         
         return sorted(results, key=lambda x: x['score'], reverse=True)
