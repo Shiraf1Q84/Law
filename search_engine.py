@@ -1,6 +1,7 @@
 # search_engine.py
 from typing import List
 import re
+from vector_database import VectorDatabase
 
 class SearchEngine:
     def __init__(self, db: VectorDatabase):
@@ -29,4 +30,20 @@ class SearchEngine:
 
     def _merge_and_rank(self, keyword_results, vector_results):
         # キーワード検索結果とベクトル検索結果をマージしてランキング
-        pass
+        merged = {}
+        for doc, score in keyword_results:
+            merged[doc['text']] = {'document': doc, 'keyword_score': score, 'vector_score': 0}
+        for doc, score in vector_results:
+            if doc['text'] in merged:
+                merged[doc['text']]['vector_score'] = score
+            else:
+                merged[doc['text']] = {'document': doc, 'keyword_score': 0, 'vector_score': score}
+        
+        # スコアの正規化と合計
+        results = list(merged.values())
+        max_keyword = max(r['keyword_score'] for r in results) if results else 1
+        max_vector = max(r['vector_score'] for r in results) if results else 1
+        for r in results:
+            r['score'] = (r['keyword_score'] / max_keyword + r['vector_score'] / max_vector) / 2
+        
+        return sorted(results, key=lambda x: x['score'], reverse=True)
