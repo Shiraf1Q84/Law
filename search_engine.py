@@ -8,18 +8,12 @@ class SearchEngine:
         self.db = db
 
     def search(self, query: str) -> List[dict]:
-        # キーワード検索とベクトル検索を実行
         keyword_results = self._keyword_search(query)
         vector_results = self.db.search(query)
-        
-        # 結果をマージしてランキング
         merged_results = self._merge_and_rank(keyword_results, vector_results)
-        
-        # 上位10件を返す
         return merged_results[:10]
 
     def _keyword_search(self, query: str) -> List[dict]:
-        # 簡易的なキーワード検索の実装
         keywords = query.lower().split()
         results = []
         for doc in self.db.documents:
@@ -29,7 +23,6 @@ class SearchEngine:
         return sorted(results, key=lambda x: x[1], reverse=True)
 
     def _merge_and_rank(self, keyword_results, vector_results):
-        # キーワード検索結果とベクトル検索結果をマージしてランキング
         merged = {}
         for doc, score in keyword_results:
             merged[doc['text']] = {'document': doc, 'keyword_score': score, 'vector_score': 0}
@@ -39,7 +32,6 @@ class SearchEngine:
             else:
                 merged[doc['text']] = {'document': doc, 'keyword_score': 0, 'vector_score': score}
         
-        # スコアの正規化と合計
         results = list(merged.values())
         max_keyword = max(r['keyword_score'] for r in results) if results else 1
         max_vector = max(r['vector_score'] for r in results) if results else 1
