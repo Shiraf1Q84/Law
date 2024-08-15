@@ -2,3 +2,4 @@ streamlit==1.22.0
 pinecone-client==2.2.1
 sentence-transformers==2.2.2 
 pypdf2 
+pypdf
