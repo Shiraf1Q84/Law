@@ -1,8 +1,8 @@
-# query_generator.py
 import openai
+from openai import OpenAIError
 
 def generate_improved_query(original_query: str, api_key: str) -> tuple:
-    openai.api_key = api_key
+    client = openai.OpenAI(api_key=api_key)
     prompt = f"""
     元の検索クエリ：{original_query}
 
@@ -14,12 +14,15 @@ def generate_improved_query(original_query: str, api_key: str) -> tuple:
     """
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4-turbo",
+        response = client.chat.completions.create(
+            model="gpt-4-turbo-preview",
             messages=[
                 {"role": "system", "content": "あなたは法律の専門家で、ユーザーの検索意図を深く理解し、適切な検索クエリを生成する能力があります。"},
                 {"role": "user", "content": prompt}
-            ]
+            ],
+            temperature=0.7,
+            max_tokens=300,
+            response_format={"type": "text"}
         )
 
         content = response.choices[0].message.content
@@ -28,5 +31,12 @@ def generate_improved_query(original_query: str, api_key: str) -> tuple:
         explanation = explanation.strip()
 
         return improved_query, explanation
+    except OpenAIError as e:
+        error_message = f"OpenAI APIエラー: {str(e)}"
+        if "invalid_api_key" in str(e):
+            error_message += "\nAPIキーが正しくありません。正しいAPIキーを入力してください。"
+        elif "insufficient_quota" in str(e):
+            error_message += "\nAPIの使用量制限に達しました。請求情報を確認するか、制限をアップグレードしてください。"
+        return None, error_message
     except Exception as e:
-        return str(e), "エラーが発生しました。APIキーが正しいことを確認してください。"
+        return None, f"予期せぬエラーが発生しました: {str(e)}"
