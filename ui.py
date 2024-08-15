@@ -3,10 +3,13 @@ from search_engine import SearchEngine
 from query_generator import generate_improved_query
 from vector_database import VectorDatabase
 import time
+import base64
+from PIL import Image
+import io
 
 def run_ui(search_engine: SearchEngine, query_generator):
     st.title("法文横断検索システム")
-
+    
     api_key = st.sidebar.text_input("OpenAI APIキーを入力してください", type="password")
     
     if not api_key:
