@@ -2,7 +2,7 @@
 from pdf_processor import process_pdf
 from vector_database import VectorDatabase
 from search_engine import SearchEngine
-import ui
+from ui import run_ui
 
 def main():
     # PDFファイルの処理
@@ -18,7 +18,7 @@ def main():
     engine = SearchEngine(db)
     
     # UIの起動
-    ui.run(engine)
+    run_ui(engine)
 
 if __name__ == "__main__":
     main()
