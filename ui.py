@@ -57,8 +57,7 @@ def run_ui(search_engine: SearchEngine, query_generator):
             if all_results:
                 st.subheader("検索結果")
                 for i, result in enumerate(all_results):
-                    with search_results_placeholder.container():
-                        st.markdown(f"**スコア: {result['score']:.2f}**")
+                    with st.expander(f"結果 {i+1} - スコア: {result['score']:.2f}"):
                         st.markdown(f"<span style='color: #A0A0A0;'><strong>ファイル名: {result['document']['file_name']}</strong></span>", unsafe_allow_html=True)
                         st.markdown(f"<span style='color: #A0A0A0;'><strong>ページ番号: {result['document']['page_number']}</strong></span>", unsafe_allow_html=True)
                         st.markdown(f"<span style='color: #A0A0A0;'><strong>チャンク番号: {result['document']['chunk_number']}</strong></span>", unsafe_allow_html=True)
@@ -71,21 +70,22 @@ def run_ui(search_engine: SearchEngine, query_generator):
                         else:
                             st.markdown("<span style='color: #32CD32;'><strong>改善されたクエリでヒット</strong></span>", unsafe_allow_html=True)
                         
-                        # テキストをストリーミング表示
-                        text_placeholder = st.empty()
-                        full_text = result['document']['text']
-                        for j in range(len(full_text) + 1):
-                            text_placeholder.markdown(full_text[:j])
-                            time.sleep(0.01)  # 表示速度の調整
+                        # テキストを表示
+                        st.markdown(result['document']['text'])
+                        
+                        # 画像を表示
+                        if 'images' in result['document'] and result['document']['images']:
+                            st.subheader("ページ内の画像")
+                            for img in result['document']['images']:
+                                image_data = base64.b64decode(img['base64'])
+                                image = Image.open(io.BytesIO(image_data))
+                                st.image(image, caption=f"画像 {img['index'] + 1}", use_column_width=True)
                         
                         st.markdown("---")
                     
                     # 進捗バーの更新
                     progress = (i + 1) / len(all_results)
-                    progress_bar.progress(progress)
-                    time.sleep(0.5)  # 結果間の遅延
-                
-                progress_bar.empty()
+                    st.progress(progress)
             else:
                 st.warning("検索結果が見つかりませんでした。")
         else:
@@ -94,4 +94,4 @@ def run_ui(search_engine: SearchEngine, query_generator):
 if __name__ == "__main__":
     db = VectorDatabase()
     engine = SearchEngine(db)
-    run_ui(engine, generate_improved_query)
+    run_ui(engine, generate_improved_que
