@@ -10,13 +10,16 @@ def run_ui(search_engine: SearchEngine):
         with st.spinner("検索中..."):
             results = search_engine.search(query)
         
-        st.subheader("検索結果")
-        for result in results:
-            st.write(f"スコア: {result['score']:.2f}")
-            st.write(f"ページ番号: {result['document']['page_number']}")
-            st.write(f"チャンク番号: {result['document']['chunk_number']}")
-            st.write(result['document']['text'])
-            st.markdown("---")
+        if results:
+            st.subheader("検索結果")
+            for result in results:
+                st.write(f"スコア: {result['score']:.2f}")
+                st.write(f"ページ番号: {result['document']['page_number']}")
+                st.write(f"チャンク番号: {result['document']['chunk_number']}")
+                st.write(result['document']['text'])
+                st.markdown("---")
+        else:
+            st.warning("検索結果が見つかりませんでした。")
 
 if __name__ == "__main__":
     # このブロックは直接ui.pyを実行した場合のためのもので、
