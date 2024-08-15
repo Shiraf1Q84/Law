@@ -15,7 +15,7 @@ def generate_improved_query(original_query: str, api_key: str) -> tuple:
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4-turbo",
             messages=[
                 {"role": "system", "content": "あなたは法律の専門家で、ユーザーの検索意図を深く理解し、適切な検索クエリを生成する能力があります。"},
                 {"role": "user", "content": prompt}
