@@ -1,9 +1,10 @@
 # main.py
+import os
 from pdf_processor import process_pdf
 from vector_database import VectorDatabase
 from search_engine import SearchEngine
+from query_generator import generate_improved_query
 from ui import run_ui
-import os
 
 def main():
     # PDFファイルの処理
@@ -21,7 +22,7 @@ def main():
     engine = SearchEngine(db)
     
     # UIの起動
-    run_ui(engine)
+    run_ui(engine, generate_improved_query)
 
 if __name__ == "__main__":
     main()
