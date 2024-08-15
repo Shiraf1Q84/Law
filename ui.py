@@ -97,4 +97,4 @@ def run_ui(search_engine: SearchEngine, query_generator):
 if __name__ == "__main__":
     db = VectorDatabase()
     engine = SearchEngine(db)
-    run_ui(engine, generate_improved_que
+    run_ui(engine, generate_improved_query)
