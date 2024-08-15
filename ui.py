@@ -3,7 +3,7 @@ import streamlit as st
 from search_engine import SearchEngine
 from query_generator import generate_improved_query
 
-def run_ui(search_engine: SearchEngine):
+def run_ui(search_engine: SearchEngine, query_generator):
     st.title("法文横断検索システム")
 
     # サイドバーにAPIキー入力欄を追加
@@ -17,7 +17,7 @@ def run_ui(search_engine: SearchEngine):
     if st.button("検索"):
         if original_query:
             with st.spinner("検索クエリを改善中..."):
-                improved_query, explanation = generate_improved_query(original_query, api_key)
+                improved_query, explanation = query_generator(original_query, api_key)
             
             if "エラーが発生しました" in explanation:
                 st.error(explanation)
@@ -38,10 +38,10 @@ def run_ui(search_engine: SearchEngine):
             if results:
                 st.subheader("検索結果")
                 for result in results:
-                    st.write(f"スコア: {result['score']:.2f}")
-                    st.write(f"ファイル名: {result['document']['file_name']}")
-                    st.write(f"ページ番号: {result['document']['page_number']}")
-                    st.write(f"チャンク番号: {result['document']['chunk_number']}")
+                    st.markdown(f"**スコア: {result['score']:.2f}**")
+                    st.markdown(f"<span style='color: #A0A0A0;'><strong>ファイル名: {result['document']['file_name']}</strong></span>", unsafe_allow_html=True)
+                    st.markdown(f"<span style='color: #A0A0A0;'><strong>ページ番号: {result['document']['page_number']}</strong></span>", unsafe_allow_html=True)
+                    st.markdown(f"<span style='color: #A0A0A0;'><strong>チャンク番号: {result['document']['chunk_number']}</strong></span>", unsafe_allow_html=True)
                     st.write(result['document']['text'])
                     st.markdown("---")
             else:
@@ -53,4 +53,4 @@ if __name__ == "__main__":
     from vector_database import VectorDatabase
     db = VectorDatabase()
     engine = SearchEngine(db)
-    run_ui(engine)
+    run_ui(engine, generate_improved_query)
