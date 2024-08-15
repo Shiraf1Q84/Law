@@ -33,9 +33,16 @@ class SearchEngine:
                 merged[doc['text']] = {'document': doc, 'keyword_score': 0, 'vector_score': score}
         
         results = list(merged.values())
-        max_keyword = max(r['keyword_score'] for r in results) if results else 1
-        max_vector = max(r['vector_score'] for r in results) if results else 1
-        for r in results:
-            r['score'] = (r['keyword_score'] / max_keyword + r['vector_score'] / max_vector) / 2
+        if not results:
+            return []  # 検索結果が空の場合は空のリストを返す
+
+        max_keyword = max(r['keyword_score'] for r in results)
+        max_vector = max(r['vector_score'] for r in results)
         
+        for r in results:
+            # ゼロ除算を避けるためにスコアの計算方法を変更
+            keyword_score = r['keyword_score'] / max_keyword if max_keyword > 0 else 0
+            vector_score = r['vector_score'] / max_vector if max_vector > 0 else 0
+            r['score'] = (keyword_score + vector_score) / 2 if (keyword_score + vector_score) > 0 else 0
+
         return sorted(results, key=lambda x: x['score'], reverse=True)
