@@ -1,12 +1,11 @@
 import streamlit as st
 from search_engine import SearchEngine
 from query_generator import generate_improved_query
-from vector_database import VectorDatabase  # Add this import
+from vector_database import VectorDatabase
 
 def run_ui(search_engine: SearchEngine, query_generator):
     st.title("法文横断検索システム")
 
-    # サイドバーにAPIキー入力欄を追加
     api_key = st.sidebar.text_input("OpenAI APIキーを入力してください", type="password")
     
     if not api_key:
@@ -19,8 +18,8 @@ def run_ui(search_engine: SearchEngine, query_generator):
             with st.spinner("検索クエリを改善中..."):
                 improved_query, explanation = query_generator(original_query, api_key)
             
-            if "エラーが発生しました" in explanation:
-                st.error(explanation)
+            if improved_query is None:
+                st.error(f"エラーが発生しました: {explanation}")
                 return
 
             st.subheader("検索クエリの改善")
