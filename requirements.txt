@@ -1,4 +1,4 @@
-pymupdf==1.19.0
-scikit-learn==0.24.2
-streamlit==0.89.0
-numpy==1.21.2
+pymupdf
+scikit-learn
+streamlit
+numpy
