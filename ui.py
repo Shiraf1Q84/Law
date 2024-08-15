@@ -7,7 +7,8 @@ import time
 from config import save_api_keys, load_api_keys, clear_api_keys
 from pdf_processor import process_pdf
 
-def run_ui(search_engine: SearchEngine, query_generator):
+def run_ui(search_engine: SearchEngine, query_generator, openai_api_key: str, llama_cloud_api_key: str):
+    # ...
     st.title("法文横断検索システム")
 
     # 保存されたAPIキーを読み込む
