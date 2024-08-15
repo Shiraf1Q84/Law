@@ -1,21 +1,16 @@
 #pdf_processor.py
+import fitz
 from typing import List, Dict
 import os
-from llama_parse import LlamaParse
 import re
 
-def process_pdf(file_path: str, api_key: str) -> List[dict]:
+def process_pdf(file_path: str) -> List[dict]:
     chunks = []
+    doc = fitz.open(file_path)
     file_name = os.path.basename(file_path)
     
-    # Set up LlamaParse
-    parser = LlamaParse(result_type="markdown", api_key=api_key)
-    
-    # Parse the PDF
-    documents = parser.load_data(file_path)
-    
-    for page_num, doc in enumerate(documents):
-        text = doc.text
+    for page_num, page in enumerate(doc):
+        text = page.get_text()
         chunks.extend(split_into_chunks(text, file_name, page_num))
     
     return chunks
@@ -29,7 +24,7 @@ def split_into_chunks(text: str, file_name: str, page_number: int) -> List[dict]
     chunk_number = 1
     
     for sentence in sentences:
-        if len(current_chunk) + len(sentence) + 1 <= 1000:
+        if len(current_chunk) + len(sentence) + 1 <= 4000:
             current_chunk += sentence + '。'
         else:
             chunks.append({
