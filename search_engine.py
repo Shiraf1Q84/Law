@@ -1,6 +1,7 @@
 # search_engine.py
 from typing import List
 import re
+from vector_database import VectorDatabase  # この行を追加
 
 class SearchEngine:
     def __init__(self, db: VectorDatabase):
