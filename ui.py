@@ -1,7 +1,7 @@
-# ui.py
 import streamlit as st
 from search_engine import SearchEngine
 from query_generator import generate_improved_query
+from vector_database import VectorDatabase  # Add this import
 
 def run_ui(search_engine: SearchEngine, query_generator):
     st.title("法文横断検索システム")
@@ -50,7 +50,6 @@ def run_ui(search_engine: SearchEngine, query_generator):
             st.warning("検索ワードを入力してください。")
 
 if __name__ == "__main__":
-    from vector_database import VectorDatabase
     db = VectorDatabase()
     engine = SearchEngine(db)
     run_ui(engine, generate_improved_query)
