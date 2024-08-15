@@ -94,7 +94,7 @@ def run_ui(search_engine: SearchEngine, query_generator):
                                 st.markdown("<span style='color: #1E90FF;'><strong>元のクエリでヒット</strong></span>", unsafe_allow_html=True)
                             else:
                                 st.markdown("<span style='color: #32CD32;'><strong>改善されたクエリでヒット</strong></span>", unsafe_allow_html=True)
-                        
+                                
                         # テキストを表示
                         st.markdown(result['document']['text'])
                         
